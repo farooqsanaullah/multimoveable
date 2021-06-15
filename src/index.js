@@ -22,18 +22,28 @@ const MoveableElemet = (props) => {
     setTarget(document.getElementById(properties.id));
   }, [properties.id, properties.classSelector]);
 
-  const generateStyleObject = (attributes) => ({
+
+
+  const generateStyleObject = (attributes) => (console.log(attributes), {
+
     position: "absolute",
-    width: `${attributes.width}px`,
-    height: `${attributes.height}px`,
+    width: `${attributes.width}` + `${attributes.type == "floor" ? 'vw' : 'px'}`,
+    height: `${attributes.height}` + `${attributes.type == "floor" ? 'vh' : 'px'}`,
     top: `${attributes.top}px`,
     left: `${attributes.left}px`,
+    bottom: `${attributes.bottom}px`,
+    right: `${attributes.right}px`,
     background: attributes.backgroundColor,
     transform: `rotate(${attributes.rotate}deg)`,
     color: attributes.fontColor,
     fontWeight: "bold",
     boxSizing: "border-box",
-    cursor: "pointer"
+    cursor: "pointer",
+    margin: `${attributes.margin}`,
+    borderWidth: `${attributes.borderWidth}px`,
+    borderStyle: `${attributes.borderStyle}`,
+    borderColor: `${attributes.borderColor}`
+
   });
 
   const onMouseEnter = () => {
@@ -82,33 +92,32 @@ const MoveableElemet = (props) => {
 
   return (
     <React.Fragment>
-      <div
+
+      <svg
         id={properties.id}
         className={properties.classSelector}
         style={generateStyleObject(properties)}
-        // onMouseEnter={onMouseEnter}
-        // onMouseLeave={onMouseLeave}
-        // onMouseDown={onMouseDown}
-        // onMouseUp={onMouseUp}
-        // onDoubleClick={onDoubleClick}
       >
-        <div
-          style={{
-            width: "100%",
-            height: "100%",
-            position: "absolute",
-            flexDirection: "column",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            transform: `rotate(${-1 * properties.rotate}deg)`
-          }}
-        >
-          {properties.name}
-          {allowMoveable ? duplicateButton : null}
-          {allowMoveable ? removeButton : null}
-        </div>
-      </div>
+        <text
+          x={properties.type == "rack" ? properties.width / 2 - 15 : 5}
+          y={properties.type == "rack" ? properties.height / 2 + 5 : 15}
+          fill={properties.fontColor} >{properties.name}
+        </text>
+        {properties.type == "rack" && <image
+          href="https://www.pngrepo.com/png/278965/512/server.png"
+          height="100%" width="100%" />
+        }
+        {properties.type == "room" &&
+          <circle cx="50%" cy="50%" r="40" stroke="black" stroke-width="3" fill="red" />
+        }
+
+                   
+          {/* {allowMoveable ? duplicateButton : null}
+          {allowMoveable ? removeButton : null} */}
+
+
+
+      </svg>
       {allowMoveable ? (
         <Moveable
           target={target}
@@ -121,10 +130,10 @@ const MoveableElemet = (props) => {
           throttleDrag={throttles.drag}
           throttleResize={throttles.resize}
           throttleRotate={throttles.rotate}
-          bounds={bounds}
+          // bounds={bounds}
           renderDirections={["nw", "n", "ne", "w", "e", "sw", "s", "se"]}
           edge={false}
-          zoom={100}
+          zoom={1}
           origin={false}
           padding={{ left: 0, top: 0, right: 0, bottom: 0 }}
           onDragStart={({ target, clientX, clientY }) => {
@@ -226,70 +235,80 @@ const MoveableElemet = (props) => {
             });
             setTempProps({});
           }}
-          // onPinchStart={({ target, clientX, clientY, datas }) => {
-          //   // pinchStart event occur before dragStart, rotateStart, scaleStart, resizeStart
-          //   // console.log("onPinchStart");
-          // }}
-          // onPinch={({ target, clientX, clientY, datas }) => {
-          //   // pinch event occur before drag, rotate, scale, resize
-          //   // console.log("onPinch");
-          // }}
-          // onPinchEnd={({ isDrag, target, clientX, clientY, datas }) => {
-          //   // pinchEnd event occur before dragEnd, rotateEnd, scaleEnd, resizeEnd
-          //   // console.log("onPinchEnd");
-          // }}
+        // onPinchStart={({ target, clientX, clientY, datas }) => {
+        //   // pinchStart event occur before dragStart, rotateStart, scaleStart, resizeStart
+        //   // console.log("onPinchStart");
+        // }}
+        // onPinch={({ target, clientX, clientY, datas }) => {
+        //   // pinch event occur before drag, rotate, scale, resize
+        //   // console.log("onPinch");
+        // }}
+        // onPinchEnd={({ isDrag, target, clientX, clientY, datas }) => {
+        //   // pinchEnd event occur before dragEnd, rotateEnd, scaleEnd, resizeEnd
+        //   // console.log("onPinchEnd");
+        // }}
         />
       ) : null}
     </React.Fragment>
   );
 };
 
-const targetTemplate = {
+const roomTemplate = {
   classSelector: "targets",
-  name: "Target",
-  width: 100,
-  height: 100,
-  top: 100,
+  name: "Room",
+  width: 122,
+  height: 122,
+  top: 93,
   left: 100,
   rotate: 0,
-  backgroundColor:
-    "repeating-linear-gradient(45deg,#95d46f,#95d46f 10px,#d4d1d1 10px,#d4d1d1 20px)",
-  fontColor: "white"
+  backgroundColor: "",
+  fontColor: "black",
+  type: "room",
+  borderWidth: "4",
+  borderStyle: "solid",
+  borderColor: "black"
 };
+
+const rackTemplate = {
+  classSelector: "targets",
+  name: "Rack",
+  width: 62,
+  height: 63,
+  top: 92,
+  left: 100,
+  rotate: 0,
+  backgroundColor: "",
+  fontColor: "white",
+  type: "rack",
+ 
+}
 
 const App = () => {
   const [targets, setTargets] = useState([
     {
-      id: "target",
-      classSelector: "targets",
-      name: "Target1",
+
+      name: "Floor",
       width: 100,
       height: 100,
-      top: 100,
-      left: 100,
-      rotate: 90,
-      backgroundColor:
-        "repeating-linear-gradient(45deg,#d46f6f,#d46f6f 10px,#d4d1d1 10px,#d4d1d1 20px)",
-      fontColor: "white"
+      top: 0,
+      left: 0,
+      bottom: 0,
+      right: 0,
+      rotate: 0,
+      backgroundColor: "",
+      fontColor: "black",
+      type: "floor",
+      margin: "auto",
+      borderWidth: "14",
+      borderStyle: "solid",
+      borderColor: "black"
+
     },
-    {
-      id: "target2",
-      classSelector: "targets",
-      name: "Target2",
-      width: 200,
-      height: 200,
-      top: 220,
-      left: 200,
-      rotate: 180,
-      backgroundColor:
-        "repeating-linear-gradient(45deg,#6f99d4,#6f99d4 10px,#d4d1d1 10px,#d4d1d1 20px)",
-      fontColor: "black"
-    }
   ]);
   const [isMoveable, setIsMoveable] = useState(false);
 
-  const onAddMore = () => {
-    const newTarget = { ...targetTemplate };
+  const onAddMore = (template) => {
+    const newTarget = { ...template };
     newTarget.id = shortid.generate();
     newTarget.name = `${newTarget.name}`;
     setTargets([...targets, newTarget]);
@@ -315,7 +334,7 @@ const App = () => {
     <TransformWrapper
       defaultScale={1}
       options={{ disabled: isMoveable, minScale: 0.2 }}
-      wheel={{ disabled: true }}
+      wheel={{ disabled: false }}
       zoomIn={{ step: 10 }}
       zoomOut={{ step: 10 }}
     >
@@ -336,8 +355,11 @@ const App = () => {
             <button style={{ marginLeft: "10px" }} onClick={resetTransform}>
               x
             </button>
-            <button style={{ marginLeft: "10px" }} onClick={onAddMore}>
-              Add More
+            <button style={{ marginLeft: "10px" }} onClick={() => { onAddMore(roomTemplate) }}>
+              Add Room
+            </button>
+            <button style={{ marginLeft: "10px" }} onClick={() => { onAddMore(rackTemplate) }}>
+              Add Rack
             </button>
             <button style={{ marginLeft: "10px" }} onClick={toggleMoveable}>
               Toggle Moveable
@@ -350,10 +372,11 @@ const App = () => {
                 width: "100vw",
                 height: "100vh",
                 background:
-                  "repeating-linear-gradient(0deg, rgba(120, 120, 120, 0.2), rgba(120, 120, 120, 0.22) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 240px), repeating-linear-gradient(-90deg, rgba(120, 120, 120, 0.22), rgba(120, 120, 120, 0.22) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 240px), repeating-linear-gradient(0deg, rgba(120, 120, 120, 0.22), rgba(120, 120, 120, 0.22) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 60px), repeating-linear-gradient(-90deg, rgba(120, 120, 120, 0.22), rgba(120, 120, 120, 0.22) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 60px)",
+                  "repeating-linear-gradient(0deg, rgba(120, 120, 120, .0001), rgba(120, 120, 120, 0.0001) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 240px), repeating-linear-gradient(-90deg, rgba(120, 120, 120, 0.0001), rgba(120, 120, 120, 0.0001) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 240px), repeating-linear-gradient(0deg, rgba(120, 120, 120, 0.22), rgba(120, 120, 120, 0.22) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 30px), repeating-linear-gradient(-90deg, rgba(120, 120, 120, 0.22), rgba(120, 120, 120, 0.22) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 30px)",
                 pointerEvents: "auto !important"
               }}
             >
+
               {targets.map((target) => (
                 <MoveableElemet
                   key={target.id}
@@ -363,6 +386,8 @@ const App = () => {
                   onRemove={onRemove}
                 />
               ))}
+
+
             </div>
           </TransformComponent>
         </React.Fragment>
